@@ -7,11 +7,28 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
+	"github.com/horitomo/go_todo_app/config"
 	"golang.org/x/sync/errgroup"
 )
 
-func run(ctx context.Context, l net.Listener) error {
+func run(ctx context.Context) error {
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	cfg, err := config.New()
+	if err != nil {
+		return err
+	}
+
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
+	if err != nil {
+		log.Fatalf("failed to listen port %d: %v", cfg.Port, err)
+	}
+	url := fmt.Sprintf("http://%s", l.Addr().String())
+	log.Printf("Start with: %v", url)
 
 	s := &http.Server{
 		// net.Listener でポートは指定される
@@ -44,18 +61,8 @@ func run(ctx context.Context, l net.Listener) error {
 
 func main() {
 
-	if len(os.Args) != 2 {
-		log.Printf("need port number \n")
-		os.Exit(1)
-	}
-	p := os.Args[1]
-	l, err := net.Listen("tcp", ":"+p)
-	if err != nil {
-		log.Fatalf("failed to listen port %s: %v", p, err)
-	}
-
 	// テストしやすいようにrun関数を呼ぶようにする
-	if err := run(context.Background(), l); err != nil {
+	if err := run(context.Background()); err != nil {
 		log.Printf("failed to terminate server: %v", err)
 		os.Exit(1)
 	}
