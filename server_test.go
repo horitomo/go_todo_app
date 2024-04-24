@@ -56,5 +56,4 @@ func TestServer_Run(t *testing.T) {
 	if err := eg.Wait(); err != nil {
 		t.Fatal(err)
 	}
-
 }

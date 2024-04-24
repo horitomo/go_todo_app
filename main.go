@@ -11,7 +11,6 @@ import (
 )
 
 func run(ctx context.Context) error {
-
 	cfg, err := config.New()
 	if err != nil {
 		return err
@@ -24,14 +23,18 @@ func run(ctx context.Context) error {
 	url := fmt.Sprintf("http://%s", l.Addr().String())
 	log.Printf("Start with: %v", url)
 
-	mux := NewMux()
+	mux, cleanup, err := NewMux(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
 	s := NewServer(l, mux)
 
 	return s.Run(ctx)
 }
 
 func main() {
-
 	// テストしやすいようにrun関数を呼ぶようにする
 	if err := run(context.Background()); err != nil {
 		log.Printf("failed to terminate server: %v", err)
