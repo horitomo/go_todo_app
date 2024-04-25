@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -64,13 +65,6 @@ type Repository struct {
 	Clocker clock.Clocker
 }
 
-// func (r *Repository) ListTasks(ctx context.Context, db *sqlx.DB) (entity.Tasks, error) {
+const ErrCodeMySQLDuplicateEntry = 1062
 
-// 	var t entity.Tasks
-// 	sql := `SELECT id, title, status, created, modified FROM task;`
-// 	if err := db.SelectContext(ctx, &t, sql); err != nil {
-// 		return nil, err
-// 	}
-
-// 	return t, nil
-// }
+var ErrAlreadyEntry = errors.New("duplicate entry")
