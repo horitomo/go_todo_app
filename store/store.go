@@ -2,12 +2,14 @@ package store
 
 import (
 	"context"
+	"errors"
 
 	"github.com/horitomo/go_todo_app/entity"
 )
 
 var (
-	Tasks = &TaskStore{Tasks: map[entity.TaskID]*entity.Task{}}
+	Tasks       = &TaskStore{Tasks: map[entity.TaskID]*entity.Task{}}
+	ErrNotFound = errors.New("not found")
 )
 
 type TaskStore struct {
